@@ -1,10 +1,12 @@
 <script>
   import { onMount } from "svelte";
+  // import PlaylistView from "./PlaylistView.svelte";
+  import SongView from "./SongView.svelte";
 
   export let authToken;
   let selectedPlaylists = []; // list of playlist IDs
   let items = [];
-  let checkAll = false;
+  let editingPlaylistId = null;
 
   $: btnText =
     selectedPlaylists.length > 1
@@ -75,7 +77,10 @@
   }
 </script>
 
-<div>
+{#if editingPlaylistId != null}
+  <SongView {authToken} bind:playlistId={editingPlaylistId} />
+{:else}
+  <!-- <PlaylistView playlistId /> -->
   <h3>Your playlists</h3>
   <div>
     <!-- is actually unfollowing playlist according to doc -->
@@ -101,14 +106,14 @@
     </tr>
     {#each items as playlist}
       <tr>
-        <td
-          ><input
+        <td>
+          <input
             class="checkbox"
             type="checkbox"
             bind:group={selectedPlaylists}
             value={playlist.id}
-          /></td
-        >
+          />
+        </td>
         <td
           >{playlist.name}
           <a
@@ -121,12 +126,16 @@
         <td>{playlist.public ? "Public" : "Private"}</td>
         <td>
           <button on:click={() => onRenameClick(playlist.id)}>Rename</button>
-          <button>Edit songs</button>
+          <button
+            on:click={() => {
+              editingPlaylistId = playlist.id;
+            }}>Edit songs</button
+          >
         </td>
       </tr>
     {/each}
   </table>
-</div>
+{/if}
 
 <style>
   .checkbox {
