@@ -6,7 +6,8 @@
   },
   "devDependencies": {
     "@snowpack/plugin-svelte": "^3.7.0",
-    "snowpack": "^3.3.7"
+    "snowpack": "^3.3.7",
+    "tabler-icons-svelte": "^1.7.0"
   },
   "dependencies": {
     "svelte": "^3.40.2"

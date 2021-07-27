@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   // import PlaylistView from "./PlaylistView.svelte";
+  import { ExternalLink } from "tabler-icons-svelte";
   import SongView from "./SongView.svelte";
 
   export let authToken;
@@ -119,7 +120,7 @@
           <a
             href={playlist.external_urls.spotify}
             target="_blank"
-            alt="playlist link">X</a
+            alt="playlist link"><ExternalLink /></a
           ></td
         >
         <td>{playlist.tracks.total}</td>
