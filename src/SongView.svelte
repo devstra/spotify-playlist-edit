@@ -122,6 +122,9 @@
 
 <!-- {/await} -->
 <style>
+  * {
+    color: white;
+  }
   .searchbar {
     border: 1px solid #1db954;
     border-radius: 500px;

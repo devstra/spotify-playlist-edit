@@ -1,26 +1,23 @@
 <script>
-  export let clearToken;
-  function onLogout() {
-    localStorage.removeItem("SPOTIFY_TOKEN");
-    clearToken();
-  }
+  import { logout } from "./auth";
 </script>
 
-<button on:click={onLogout}>Logout</button>
+<button on:click={logout}>Logout</button>
 
 <style>
   button {
     border-radius: 500px;
-    border: 2px solid black;
     color: black;
+    border: none;
     background-color: #fff;
-    padding: 8px 16px;
+    /* padding: 8px 16px; */
+    height: 35px;
+    width: 110px;
     cursor: pointer;
     font-weight: bold;
   }
   button:hover {
     color: #fff;
     background-color: crimson;
-    border: none;
   }
 </style>

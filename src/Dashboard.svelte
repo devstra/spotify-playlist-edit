@@ -1,18 +1,12 @@
 <script>
   import { onMount } from "svelte";
-  // import PlaylistView from "./PlaylistView.svelte";
   import { ExternalLink } from "tabler-icons-svelte";
+  import LogoutButton from "./LogoutButton.svelte";
   import SongView from "./SongView.svelte";
 
   export let authToken;
-  let selectedPlaylists = []; // list of playlist IDs
   let items = [];
   let editingPlaylistId = null;
-
-  $: btnText =
-    selectedPlaylists.length > 1
-      ? selectedPlaylists.length + " playlists"
-      : selectedPlaylists.length + " playlist";
 
   onMount(async () => {
     const res = await fetch("https://api.spotify.com/v1/me/playlists", {
@@ -27,27 +21,7 @@
     items = response.items;
   });
 
-  async function onDeleteClick() {
-    console.log(selectedPlaylists);
-    // TODO: handle multi delete ?
-    const playlistId = selectedPlaylists[0];
-    fetch(`https://api.spotify.com/v1/playlists/${playlistId}/followers`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then(() => {
-        items = items.filter((i) => i.id != playlistId);
-        selectedPlaylists = [];
-      })
-      .catch((e) => console.error(e));
-  }
-
-  function onRenameClick(playlistId) {
-    // show a popup to enter name
+  function onChangeVisibilityClick(playlistId, makePublic) {
     fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
       method: "PUT",
       headers: {
@@ -55,12 +29,12 @@
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
-      body: JSON.stringify({ name: "newname" }),
+      body: JSON.stringify({ public: makePublic }),
     })
       .then(() => {
         items = items.map((i) => {
           if (i.id == playlistId) {
-            return { ...i, name: "newname" };
+            return { ...i, public: makePublic };
           } else {
             return i;
           }
@@ -68,88 +42,87 @@
       })
       .catch((e) => console.error(e));
   }
-
-  function onCheckAll(event) {
-    if (event.target.checked) {
-      selectedPlaylists = items.map((i) => i.id);
-    } else {
-      selectedPlaylists = [];
-    }
-  }
 </script>
 
-{#if editingPlaylistId != null}
-  <SongView {authToken} bind:playlistId={editingPlaylistId} />
-{:else}
-  <!-- <PlaylistView playlistId /> -->
-  <h3>Your playlists</h3>
-  <div>
-    <!-- is actually unfollowing playlist according to doc -->
-    <button on:click={onDeleteClick}>Delete {btnText}</button>
-    <button>Make {btnText} public</button>
-    <button>Make {btnText} private</button>
-    <button>Create new playlist</button>
-  </div>
-  <table>
-    <tr>
-      <th
-        ><input
-          class="checkbox"
-          type="checkbox"
-          title="Select all"
-          on:change={onCheckAll}
-        /></th
-      >
-      <th>Name</th>
-      <th>Song count</th>
-      <th>Visibility</th>
-      <th>Actions</th>
-    </tr>
-    {#each items as playlist}
+<section>
+  {#if editingPlaylistId != null}
+    <SongView {authToken} bind:playlistId={editingPlaylistId} />
+  {:else}
+    <div class="titleRow">
+      <h3>Your playlists</h3>
+      <LogoutButton />
+    </div>
+    <table>
       <tr>
-        <td>
-          <input
-            class="checkbox"
-            type="checkbox"
-            bind:group={selectedPlaylists}
-            value={playlist.id}
-          />
-        </td>
-        <td
-          >{playlist.name}
-          <a
-            href={playlist.external_urls.spotify}
-            target="_blank"
-            alt="playlist link"><ExternalLink /></a
-          ></td
-        >
-        <td>{playlist.tracks.total}</td>
-        <td>{playlist.public ? "Public" : "Private"}</td>
-        <td>
-          <button on:click={() => onRenameClick(playlist.id)}>Rename</button>
-          <button
-            on:click={() => {
-              editingPlaylistId = playlist.id;
-            }}>Edit songs</button
-          >
-        </td>
+        <th>Name</th>
+        <th>Song count</th>
+        <th>Visibility</th>
+        <th>Actions</th>
       </tr>
-    {/each}
-  </table>
-{/if}
+      {#each items as playlist}
+        <tr>
+          <td
+            >{playlist.name}
+            <a
+              href={playlist.external_urls.spotify}
+              target="_blank"
+              alt="playlist link"><ExternalLink /></a
+            ></td
+          >
+          <td>{playlist.tracks.total}</td>
+          <td>{playlist.public ? "Public" : "Private"}</td>
+          <td>
+            <button
+              class="actionBtn"
+              on:click={() =>
+                onChangeVisibilityClick(playlist.id, !playlist.public)}
+              >Make {!playlist.public ? "Public" : "Private"}</button
+            >
+            <button
+              class="actionBtn"
+              on:click={() => {
+                editingPlaylistId = playlist.id;
+              }}>Edit songs</button
+            >
+          </td>
+        </tr>
+      {/each}
+    </table>
+  {/if}
+</section>
 
 <style>
-  .checkbox {
-    width: 21px;
-    height: 21px;
+  * {
+    color: white;
+  }
+  .titleRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
   table {
     border-collapse: collapse;
+    width: 100%;
   }
   th,
   td {
     border: 1px solid rgb(29, 185, 84);
     padding: 10px;
     text-align: center;
+  }
+  .actionBtn {
+    border: none;
+    color: white;
+    border-radius: 500px;
+    width: 115px;
+    height: 25px;
+    background-color: rgba(29, 185, 84, 1);
+    cursor: pointer;
+  }
+  section {
+    background-color: #121212;
+    height: 100vh;
+    margin: 0 10%;
   }
 </style>

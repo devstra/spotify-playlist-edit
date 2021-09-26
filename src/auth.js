@@ -1,10 +1,13 @@
 import { writable } from "svelte/store";
 
-let _user = localStorage.getItem("SPE_USER");
-export const store = writable(_user ? JSON.parse(_user) : null);
+let authToken = localStorage.getItem("SPOTIFY_TOKEN");
+export const store = writable(authToken ? authToken : null);
 export const logout = () => store.set(null);
 
 store.subscribe((value) => {
-  if (value) localStorage.setItem("SPE_USER", JSON.stringify(value));
-  else localStorage.removeItem("SPE_USER"); // for logout
+  if (value) {
+    localStorage.setItem("SPOTIFY_TOKEN", value);
+  } else {
+    localStorage.removeItem("SPOTIFY_TOKEN");
+  }
 });

@@ -8,6 +8,11 @@
   export let trackId;
   export let checkboxGroup;
   $: artistNames = trackArtists.map((a) => a.name);
+  $: trackDate = new Date(trackReleaseDate).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
   function playAudio(audioUrl) {
     const audio = new Audio(audioUrl);
@@ -45,7 +50,7 @@
       <span class="artistTag">{aName}</span>
     {/each}
   </td>
-  <td>{trackReleaseDate}</td>
+  <td>{trackDate}</td>
   <td>
     <button class="dotsButton"><DotsVertical /></button>
   </td>
